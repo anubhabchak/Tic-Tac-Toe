@@ -130,10 +130,10 @@ public:
 
 } gameGrid;
 
-  //TTTgame()
-  //{
-  //  new_game();
-  //}
+  TTTgame()
+  {
+    new_game();
+  }
 
   //call to check status of the game
   bool isAlive()
@@ -244,7 +244,7 @@ private:
           return gameGrid.grid[x][y];
     }
 
-    if (gameGrid.getCount() == 0) //note: increase the count before calling checkwin
+    if (gameGrid.getCount() == 9) //note: increase the count before calling checkwin
       return 'D';
     else
       return '\0';
