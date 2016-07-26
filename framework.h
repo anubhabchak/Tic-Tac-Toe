@@ -20,11 +20,13 @@ class TTTgame
     Public Member Functions:
     |
     |-TTTgrid() >> Def Con - Call to create a TTTgrid object
+    |-TTTgrid(TTTgrid) >> Copy constructor
     |
     |-int getCount() - Count total markings
     |
     |-bool isPosEmpty(position) >> Check vacancy of a position
     |-char getMarkAt(position) >> get Mark at position, If empty, returns null
+    |-void getGrid(char**) >> get a copy of the grid in a 2D char array
     |
     |-void reset() >> reinitialise all positions to null
     |
@@ -101,9 +103,23 @@ public:
       reset();
     }
 
+    //copy constructor for TTTgrid
+    TTTgrid(const TTTgrid& inGrid)
+    {
+      TTTgame::TTTgrid::Position pos;
+      for (int i = 0; i < 3; i++)
+        for (int j = 0; j<3; j++)
+          {
+            pos.setxy(i,j);
+            grid[i][j] = inGrid.getMarkAt(pos);
+            count = inGrid.getCount();
+          }
+    }
+
+
 
   //return total markings
-  int getCount() { return count; }
+  int getCount() const { return count; }
 
   //returns the status of a given position
   bool isPosEmpty( Position pos )
@@ -115,9 +131,17 @@ public:
   }
 
   //get mark at a specified position
-  char getMarkAt( Position pos )
+  char getMarkAt( Position pos ) const
   {
     return grid[ pos.getx() ][ pos.gety() ];
+  }
+
+  //returns a two dimensional character array of the grid
+  void getGrid(char** tmpGrid)
+  {
+    for (int i = 0; i < 3; i++)
+      for (int j = 0; j<3; j++)
+        tmpGrid[i][j] = grid[i][j];
   }
 
   void reset()
@@ -147,6 +171,7 @@ public:
   //get the current turn of the game
   char getTurn()
   {
+    //game always starts with 'X'
     if( gameGrid.getCount()%2 == 0 )
       return 'X';
     else
@@ -183,7 +208,6 @@ public:
   //Automatically mark a given postion
   bool autoMark( TTTgrid::Position pos )
   {
-    //Game always starts with 'X'
     char turn = getTurn();
     if(mark(pos, turn)== true)
       return true;
@@ -195,6 +219,11 @@ public:
   {
     winner = '\0';
     gameGrid.reset();
+  }
+
+  void getGrid( TTTgrid tempGrid )
+  {
+    tempGrid = gameGrid;
   }
 
   char getWinner() { return winner; }
@@ -227,21 +256,23 @@ private:
 
     if ((gameGrid.grid[x][y] == gameGrid.grid[x2][y]) && //check horizontal matching
         (gameGrid.grid[x][y] == gameGrid.grid[x3][y]))
-      return gameGrid.grid[x][y];
+       return gameGrid.grid[x][y];
 
     else if ((gameGrid.grid[x][y] == gameGrid.grid[x][y2]) && //check vertical matching
         (gameGrid.grid[x][y] == gameGrid.grid[x][y3]))
-      return gameGrid.grid[x][y];
+       return gameGrid.grid[x][y];
 
-    if (x == 1 && y == 1)
+    if (x == y)
     {
-      if ((gameGrid.grid[x][y] == gameGrid.grid[x2][y2]) && //check 1st diagonal matching
-          (gameGrid.grid[x][y] == gameGrid.grid[x3][y3]))
+      if ((gameGrid.grid[1][1] == gameGrid.grid[0][0]) && //check 1st diagonal matching
+          (gameGrid.grid[1][1] == gameGrid.grid[2][2]))
         return gameGrid.grid[x][y];
-
-      else if ((gameGrid.grid[x][y] == gameGrid.grid[x2][y3]) && //2nd diagonal matching
-            (gameGrid.grid[x][y] == gameGrid.grid[x3][y2]))
-          return gameGrid.grid[x][y];
+    }
+    else if(x + y == 2)
+    {
+      if ((gameGrid.grid[1][1] == gameGrid.grid[0][2]) && //2nd diagonal matching
+            (gameGrid.grid[1][1] == gameGrid.grid[2][0]))
+        return gameGrid.grid[x][y];
     }
 
     if (gameGrid.getCount() == 9) //note: increase the count before calling checkwin
